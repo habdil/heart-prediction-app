@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About StrokeSense - Stroke Risk Prediction</title>
+    <meta name="description" content="Learn about StrokeSense's mission to help prevent strokes through early risk detection.">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/views/styles/about.css">
+    <link rel="stylesheet" href="/components/styles/Header.css">
+    <link rel="stylesheet" href="/components/styles/Footer.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Include Header Component -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Page Title -->
+        <section class="page-header">
+            <div class="container">
+                <h1>About StrokeSense</h1>
+                <p>Our mission is to help prevent strokes through early risk detection</p>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-image">
+                        <img src="/assets/about-image.png" alt="Medical professionals analyzing data">
+                    </div>
+                    <div class="about-text">
+                        <h2>Our Story</h2>
+                        <p>StrokeSense was founded in 2024 by a team of healthcare professionals and AI experts who recognized the potential of machine learning in stroke prevention.</p>
+                        <p>Every year, millions of people worldwide suffer from strokes, many of which could be prevented with early risk detection and intervention. Our platform aims to make risk assessment accessible to everyone, empowering individuals to take control of their health.</p>
+                        <p>Through continuous research and development, we're constantly improving our algorithms to provide the most accurate predictions possible, helping to save lives through preventive healthcare.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <div class="container">
+                <h2 class="section-title">How It Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-icon">
+                            <span>1</span>
+                        </div>
+                        <h3>Enter Your Information</h3>
+                        <p>Fill out our simple form with basic health data and lifestyle factors.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">
+                            <span>2</span>
+                        </div>
+                        <h3>AI Analysis</h3>
+                        <p>Our machine learning model analyzes your risk factors based on medical research.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">
+                            <span>3</span>
+                        </div>
+                        <h3>Get Your Results</h3>
+                        <p>Receive a personalized risk assessment with actionable insights.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">
+                            <span>4</span>
+                        </div>
+                        <h3>Take Action</h3>
+                        <p>Use your results to make informed decisions about your health and lifestyle.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>Ready to Assess Your Risk?</h2>
+                    <p>It only takes a few minutes to get your personalized stroke risk assessment.</p>
+                    <a href="/views/ui/predict.html" class="btn btn-primary">Start Your Assessment</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Include Footer Component -->
+    <div id="footer-container"></div>
+    
+    <!-- JavaScript to load components -->
+    <script>
+        // Function to fetch and insert HTML components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById(containerId).innerHTML = html;
+                } else {
+                    console.error(`Failed to load component from ${url}`);
+                }
+            } catch (error) {
+                console.error(`Error loading component from ${url}:`, error);
+            }
+        }
+        
+        // Load all components when the page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            loadComponent('/components/Header.html', 'header-container');
+            loadComponent('/components/Footer.html', 'footer-container');
+        });
+    </script>
+</body>
+</html>

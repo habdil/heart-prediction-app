@@ -1,0 +1,47 @@
+<!-- DisplayResult.html -->
+<section class="result-section" id="result-section">
+    <div class="container">
+        <div class="result-card">
+            <div class="result-header">
+                <h2>Prediction Result</h2>
+                <p class="result-date">Date: <span id="result-date">March 8, 2025</span></p>
+            </div>
+            
+            <div class="result-body">
+                <div class="result-indicator">
+                    <div class="indicator-gauge">
+                        <div class="gauge-fill" id="risk-gauge"></div>
+                    </div>
+                    <div class="indicator-text">
+                        <p>Risk Level: <span id="risk-level">Low</span></p>
+                        <p>Probability: <span id="risk-probability">12%</span></p>
+                    </div>
+                </div>
+                
+                <div class="result-info">
+                    <h3>Key Risk Factors:</h3>
+                    <ul id="risk-factors">
+                        <li>Age: <span id="factor-age">58</span></li>
+                        <li>Hypertension: <span id="factor-hypertension">Yes</span></li>
+                        <li>Heart Disease: <span id="factor-heart-disease">No</span></li>
+                        <li>Glucose Level: <span id="factor-glucose">120 mg/dL</span></li>
+                        <li>BMI: <span id="factor-bmi">28.5</span></li>
+                    </ul>
+                </div>
+                
+                <div class="result-disclaimer">
+                    <p><strong>Disclaimer:</strong> This prediction is based on statistical models and should not replace professional medical advice. Please consult with a healthcare provider for proper diagnosis and treatment.</p>
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <button id="download-report" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Download Report
+                </button>
+                <button id="new-prediction" class="btn btn-primary">
+                    New Prediction
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
