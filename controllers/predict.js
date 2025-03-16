@@ -1,3 +1,5 @@
+// Heart Disease Prediction Controller
+
 // Function to fetch and insert HTML components
 async function loadComponent(url, containerId) {
     try {
@@ -20,12 +22,12 @@ async function loadComponent(url, containerId) {
 
 // Function to set up form handlers
 function setupFormHandlers() {
-    const form = document.getElementById('stroke-predict-form');
+    const form = document.getElementById('heart-predict-form');
     if (form) {
         form.addEventListener('submit', handleFormSubmit);
     }
     
-    // Also set up result section buttons
+    // Set up result section buttons
     const newPredictionBtn = document.getElementById('new-prediction');
     if (newPredictionBtn) {
         newPredictionBtn.addEventListener('click', () => {
@@ -41,57 +43,46 @@ function setupFormHandlers() {
 }
 
 // Function to handle form submission
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     event.preventDefault();
     
+    // Show loading state
+    document.body.classList.add('loading');
+    
     // Collect form data
-    const formData = new FormData(event.target);
+    const form = event.target;
+    const formData = new FormData(form);
     const formObject = Object.fromEntries(formData.entries());
     
-    // In a real implementation, you would send this data to your backend
-    // For now, we'll simulate a response and display the result
-    simulatePrediction(formObject);
+    try {
+        // Send data to backend API
+        const response = await fetch('/api/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formObject)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server response was not ok');
+        }
+        
+        const result = await response.json();
+        displayResults(formObject, result);
+    } catch (error) {
+        console.error('Error during prediction:', error);
+        alert('An error occurred during prediction. Please try again.');
+    } finally {
+        document.body.classList.remove('loading');
+    }
 }
 
-// Function to simulate prediction (this would normally be done by the backend)
-function simulatePrediction(data) {
-    // Display loading state (optional)
+// Function to display results from API
+function displayResults(formData, result) {
+    // Get risk score from result
+    const riskScore = result.risk_score;
     
-    // Simulate API delay
-    setTimeout(() => {
-        // Calculate a sample risk score based on some factors
-        let riskScore = 0;
-        
-        // Age is a significant factor
-        if (data.age > 60) riskScore += 30;
-        else if (data.age > 40) riskScore += 15;
-        
-        // Hypertension and heart disease
-        if (data.hypertension === "1") riskScore += 20;
-        if (data.heart_disease === "1") riskScore += 25;
-        
-        // Glucose levels
-        if (data.avg_glucose_level > 200) riskScore += 20;
-        else if (data.avg_glucose_level > 140) riskScore += 10;
-        
-        // BMI
-        if (data.bmi > 30) riskScore += 15;
-        else if (data.bmi > 25) riskScore += 5;
-        
-        // Smoking
-        if (data.smoking_status === "smokes") riskScore += 20;
-        else if (data.smoking_status === "formerly smoked") riskScore += 10;
-        
-        // Clamp risk score between 0-100
-        riskScore = Math.min(100, Math.max(0, riskScore));
-        
-        // Display results
-        displayResults(data, riskScore);
-    }, 1500);
-}
-
-// Function to display results
-function displayResults(data, riskScore) {
     // Update the gauge
     const gauge = document.getElementById('risk-gauge');
     gauge.style.width = `${riskScore}%`;
@@ -100,24 +91,43 @@ function displayResults(data, riskScore) {
     const riskLevel = document.getElementById('risk-level');
     if (riskScore < 30) {
         riskLevel.textContent = "Low";
-        riskLevel.className = "low";
-    } else if (riskScore < 60) {
+        riskLevel.className = "risk-level low";
+    } else if (riskScore < 70) {
         riskLevel.textContent = "Moderate";
-        riskLevel.className = "moderate";
+        riskLevel.className = "risk-level moderate";
     } else {
         riskLevel.textContent = "High";
-        riskLevel.className = "high";
+        riskLevel.className = "risk-level high";
     }
     
     // Update probability
     document.getElementById('risk-probability').textContent = `${riskScore.toFixed(1)}%`;
     
+    // Map chest pain type values to text
+    const chestPainTypes = {
+        "0": "Typical Angina",
+        "1": "Atypical Angina", 
+        "2": "Non-anginal Pain",
+        "3": "Asymptomatic"
+    };
+    
     // Update risk factors
-    document.getElementById('factor-age').textContent = data.age;
-    document.getElementById('factor-hypertension').textContent = data.hypertension === "1" ? "Yes" : "No";
-    document.getElementById('factor-heart-disease').textContent = data.heart_disease === "1" ? "Yes" : "No";
-    document.getElementById('factor-glucose').textContent = `${data.avg_glucose_level} mg/dL`;
-    document.getElementById('factor-bmi').textContent = data.bmi;
+    document.getElementById('factor-age').textContent = formData.age;
+    document.getElementById('factor-chest-pain').textContent = chestPainTypes[formData.chest_pain_type];
+    document.getElementById('factor-bp').textContent = `${formData.resting_bp} mmHg`;
+    document.getElementById('factor-cholesterol').textContent = `${formData.cholesterol} mg/dL`;
+    document.getElementById('factor-heart-rate').textContent = formData.max_heart_rate;
+    document.getElementById('factor-exercise-angina').textContent = formData.exercise_angina === "1" ? "Yes" : "No";
+    
+    // Update interpretation text based on risk level
+    const interpretationEl = document.getElementById('interpretation-text');
+    if (riskScore < 30) {
+        interpretationEl.innerHTML = "Your assessment shows a <strong>low risk</strong> of heart disease based on the provided information. Maintain a healthy lifestyle with regular exercise and a balanced diet. Continue with routine check-ups as advised by your healthcare provider.";
+    } else if (riskScore < 70) {
+        interpretationEl.innerHTML = "Your assessment shows a <strong>moderate risk</strong> of heart disease. Consider consulting with a healthcare professional to review your cardiovascular health. Focus on improving lifestyle factors such as diet, exercise, and stress management.";
+    } else {
+        interpretationEl.innerHTML = "Your assessment shows a <strong>high risk</strong> of heart disease. We strongly recommend consulting with a healthcare professional promptly. Early intervention and proper medical guidance are important for managing cardiovascular risk factors.";
+    }
     
     // Update date
     const today = new Date();
@@ -134,10 +144,10 @@ function displayResults(data, riskScore) {
     }
 }
 
-// Function to handle report download (simplified)
+// Function to handle report download
 function handleDownloadReport() {
-    alert("Report download functionality would be implemented here.");
-    // In a real implementation, you might generate a PDF or other document format
+    // In a real implementation, this would generate a PDF
+    alert("Report generation feature would be implemented here. This would typically create a PDF with your heart health assessment results.");
 }
 
 // Initialize component loading when the page loads
@@ -149,11 +159,10 @@ function initPredictPage() {
 }
 
 // Export functions for use in other modules if needed
-window.predictController = {
+window.heartPredictController = {
     init: initPredictPage,
     loadComponent: loadComponent,
     handleFormSubmit: handleFormSubmit,
-    simulatePrediction: simulatePrediction,
     displayResults: displayResults,
     handleDownloadReport: handleDownloadReport
 };
