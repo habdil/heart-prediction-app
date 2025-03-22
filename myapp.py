@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import joblib
-import numpy as np
 import os
 import pandas as pd
 
 app = Flask(__name__,
-            static_folder=".", 
+            static_folder=".",
             static_url_path="",
             template_folder="views/ui")
 
@@ -14,11 +13,16 @@ model = None
 
 def load_model():
     global model
-    model_path = os.path.join("models", "model.pkl")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(BASE_DIR, "models", "model.pkl")
+
+    if not os.path.exists(model_path):
+        print(f"Model file not found at: {model_path}")
+        return False
+
     try:
         model = joblib.load(model_path)
         print(f"Model loaded successfully: {type(model)}")
-        print(f"Model parameters: {model.get_params()}")
         return True
     except Exception as e:
         print(f"Error loading model: {e}")
@@ -42,10 +46,8 @@ def about_page():
 @app.route('/api/predict', methods=['POST'])
 def predict():
     try:
-        # Get data from request
         data = request.get_json()
-        
-        # Create a DataFrame with the input values
+
         input_data = {
             'age': int(data['age']),
             'sex': int(data['sex']),
@@ -59,31 +61,25 @@ def predict():
             'oldpeak': float(data['oldpeak']),
             'ST slope': int(data['st_slope'])
         }
-        
-        # Convert to DataFrame
+
         input_df = pd.DataFrame([input_data])
-        
-        # Make prediction
+
         if model is None:
             if not load_model():
                 return jsonify({'error': 'Model not available. Please try again later.'}), 500
-        
+
         prediction = model.predict(input_df)
         probability = model.predict_proba(input_df)
-        
-        # Convert probability to list for JSON serialization
+
         probability_list = probability.tolist()
-        
-        # Get feature importance if available
+
         feature_importance = {}
         if hasattr(model, 'feature_importances_'):
             for idx, col in enumerate(input_data.keys()):
                 feature_importance[col] = float(model.feature_importances_[idx])
-        
-        # Calculate risk score (0-100)
+
         risk_score = int(probability[0][1] * 100)
-        
-        # Prepare response
+
         result = {
             'prediction': int(prediction[0]),
             'probability': probability_list[0],
@@ -91,11 +87,8 @@ def predict():
             'class_labels': model.classes_.tolist(),
             'feature_importance': feature_importance
         }
-        
+
         return jsonify(result)
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
